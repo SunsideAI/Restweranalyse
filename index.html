@@ -833,20 +833,30 @@
                     nachname: answers.nachname,
                     email: answers.email,
                     telefon: answers.telefon,
-                    baujahr: answers.frage2,
-                    abschreibung: abschreibungsdauer,
-                    scoring: scoringRounded,
                     restnutzungsdauer: restnutzungsdauer,
+                    abschreibung: abschreibungsdauer,
                     steuerVorteilMoeglich: restnutzungsdauer < abschreibungsdauer
                 };
 
                 fetch("https://hooks.zapier.com/hooks/catch/21938164/2xz2o65/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(ergebnisDaten)
-                });
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(ergebnisDaten)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Fehler beim Senden an Zapier");
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        console.log("✅ Erfolgreich an Zapier gesendet:", data);
+                    })
+                    .catch(error => {
+                        console.error("❌ Fehler beim Senden an Zapier:", error);
+                    });
 
                 // Ergebnis anzeigen
                 funnelContainer.innerHTML = `
