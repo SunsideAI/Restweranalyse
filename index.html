@@ -838,13 +838,16 @@
                     steuerVorteilMoeglich: true
                 };
 
-                fetch("https://hooks.zapier.com/hooks/catch/21938164/2xz2o65/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(testdaten)
-                });
+                fetch("/.netlify/functions/zapierProxy", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(ergebnisDaten)
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log("✅ Erfolgreich über Proxy:", data))
+                    .catch(err => console.error("❌ Fehler:", err));
 
                 // Ergebnis anzeigen
                 funnelContainer.innerHTML = `
