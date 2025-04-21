@@ -890,6 +890,24 @@
                 backButton.style.display = "none";
             }
 
+            // Automatisch Höhe des Inhalts berechnen und an Parent senden
+            function sendHeightToParent() {
+                const height = document.body.scrollHeight;
+                window.parent.postMessage({
+                    type: "setHeight",
+                    height
+                }, "*");
+            }
+
+            // Direkt nachladen
+            sendHeightToParent();
+
+            // Und erneut bei DOM-Änderungen (Fragenwechsel etc.)
+            new MutationObserver(sendHeightToParent).observe(document.body, {
+                childList: true,
+                subtree: true,
+            });
+
         };
     </script>
 
