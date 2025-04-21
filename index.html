@@ -891,21 +891,25 @@
             }
 
         };
+
+        function sendHeightToParent() {
+            const height = document.body.scrollHeight;
+            window.parent.postMessage({
+                type: 'setHeight',
+                height
+            }, '*');
+        }
+
+        // Höhe nach jedem Rendering aktualisieren
+        new MutationObserver(sendHeightToParent).observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        window.addEventListener('load', sendHeightToParent);
+        window.addEventListener('resize', sendHeightToParent);
+        
     </script>
-    
-<script>
-  function sendHeightToParent() {
-    const height = document.body.scrollHeight;
-    window.parent.postMessage({ type: 'setHeight', height }, '*');
-  }
-
-  // Höhe direkt nach Laden senden
-  window.addEventListener("load", sendHeightToParent);
-
-  // Bei Resize/DOM-Änderung nochmal senden
-  const observer = new ResizeObserver(sendHeightToParent);
-  observer.observe(document.body);
-</script>
 
 </body>
 
