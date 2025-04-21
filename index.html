@@ -3,10 +3,15 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
     <title>Immobilien-Funnel</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Epilogue', sans-serif;
             margin: 0;
             padding: 40px;
             background: #f4f6f8;
@@ -35,7 +40,7 @@
 
         .progress {
             height: 100%;
-            background: #007BFF;
+            background: #5E2C8C;
             width: 0%;
             transition: width 0.4s ease-in-out;
         }
@@ -55,7 +60,7 @@
 
         .button {
             padding: 10px 20px;
-            background: #007BFF;
+            background: #5E2C8C;
             color: white;
             border: none;
             cursor: pointer;
@@ -64,7 +69,7 @@
         }
 
         .button:hover {
-            background: #0056b3;
+            background: #9470B5;
         }
 
         .option-button {
@@ -74,19 +79,19 @@
             padding: 8px 14px;
             font-size: 15px;
             background-color: #fff;
-            border: 2px solid #007BFF;
+            border: 2px solid #5E2C8C;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
         }
 
         .option-button:hover {
-            background-color: #007BFF;
+            background-color: #5E2C8C;
             color: white;
         }
 
         .option-button.selected {
-            background-color: #007BFF;
+            background-color: #5E2C8C;
             color: white;
         }
 
@@ -138,7 +143,7 @@
             margin-left: 6px;
             cursor: pointer;
             font-size: 14px;
-            color: #007BFF;
+            color: #5E2C8C;
         }
 
         .tooltip:hover .tooltip-text {
@@ -161,6 +166,34 @@
             opacity: 0;
             transition: opacity 0.3s;
             font-size: 13px;
+        }
+
+        .karten-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 48px;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 480px) {
+            .karten-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .option-button {
+                font-size: 16px;
+                padding: 14px;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -367,7 +400,7 @@
                     const title = document.createElement("h2");
                     title.textContent = step.frage;
                     title.style.textAlign = "center";
-                    title.style.color = "#007BFF";
+                    title.style.color = "#5E2C8C";
 
                     const subtitle = document.createElement("p");
                     subtitle.textContent = step.untertitel;
@@ -375,10 +408,7 @@
                     subtitle.style.marginTop = "-10px";
 
                     const grid = document.createElement("div");
-                    grid.style.display = "grid";
-                    grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
-                    grid.style.gap = "48px";
-                    grid.style.margin = "40px 0";
+                    grid.className = "karten-grid";
 
                     step.karten.forEach(k => {
                         const card = document.createElement("div");
