@@ -829,13 +829,10 @@
                 const steuervorteilMoeglich = restnutzungsdauer < abschreibungsdauer;
 
                 const ergebnisDaten = {
-                    vorname: answers.vorname,
-                    nachname: answers.nachname,
-                    email: answers.email,
-                    telefon: answers.telefon,
-                    restnutzungsdauer: restnutzungsdauer,
+                    ...answers, // alle User-Antworten
+                    restnutzungsdauer,
                     abschreibung: abschreibungsdauer,
-                    steuerVorteilMoeglich: steuervorteilMoeglich
+                    steuerVorteilMoeglich: restnutzungsdauer < abschreibungsdauer
                 };
 
                 fetch("/.netlify/functions/zapierProxy", {
