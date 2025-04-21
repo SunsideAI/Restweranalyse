@@ -893,7 +893,19 @@
         };
     </script>
     
-    <script src="https://cdn.jsdelivr.net/npm/iframe-resizer/js/iframeResizer.contentWindow.min.js"></script>
+<script>
+  function sendHeightToParent() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ type: 'setHeight', height }, '*');
+  }
+
+  // Höhe direkt nach Laden senden
+  window.addEventListener("load", sendHeightToParent);
+
+  // Bei Resize/DOM-Änderung nochmal senden
+  const observer = new ResizeObserver(sendHeightToParent);
+  observer.observe(document.body);
+</script>
 
 </body>
 
