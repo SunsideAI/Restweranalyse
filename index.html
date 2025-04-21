@@ -892,6 +892,21 @@
 
         };
     </script>
+
+    <script>
+        function sendHeight() {
+            const height = document.documentElement.scrollHeight || document.body.scrollHeight;
+            parent.postMessage({
+                type: 'funnelHeight',
+                height
+            }, '*');
+        }
+
+        window.addEventListener('load', sendHeight);
+        window.addEventListener('resize', sendHeight);
+        setTimeout(sendHeight, 1000); // Falls Inhalte nachträglich laden
+    </script>
+
 </body>
 
 </html>
