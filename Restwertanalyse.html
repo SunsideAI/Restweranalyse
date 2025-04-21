@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Immobilien-Funnel</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+        }
+
+        .funnel-wrapper {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-bar {
+            width: 100%;
+            background: #e6e6e6;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 12px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background: #007BFF;
+            width: 0%;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .funnel-step {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease-in-out;
+        }
+
+        .funnel-step.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .button:hover {
+            background: #0056b3;
+        }
+
+        .option-button {
+            display: block;
+            width: calc(100% - 24px);
+            margin: 8px auto 0;
+            padding: 8px 14px;
+            font-size: 15px;
+            background-color: #fff;
+            border: 2px solid #007BFF;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .option-button:hover {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .option-button.selected {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .nested-options {
+            margin-top: 10px;
+            padding-left: 10px;
+            display: none;
+        }
+
+        .nested-options.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            padding: 10px;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #007BFF;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            padding: 8px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            top: 120%;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="funnel-wrapper">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="funnel"></div>
+        <div class="nav-buttons">
+            <button id="backButton" class="button" style="visibility: hidden">Zurück</button>
+            <button id="skipButton" class="button">Weiter</button>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const funnelContainer = document.getElementById("funnel");
+            const progressBar = document.getElementById("progress");
+            const backButton = document.getElementById("backButton");
+            const skipButton = document.getElementById("skipButton");
+
+            const zwischenfragen = ["Bis ca 5 Jahre", "Bis ca 10 Jahre", "Bis ca 15 Jahre", "Bis ca 20 Jahre", "Noch länger"];
+
+            function getModernisierungsInfo(id) {
+                const infos = {
+                    modernisierungdach: "Eine neue Dacheindeckung mit Dämmung verbessert die Energieeffizienz deutlich.",
+                    modernisierungfenster: "Moderne Fenster mit Wärmeschutzverglasung steigern den Gebäudewert.",
+                    modernisierungleitung: "Neue Leitungen verringern Sanierungsrisiken und verlängern die Nutzungsdauer.",
+                    modernisierungheizung: "Effiziente Heizsysteme wirken sich positiv auf den Zustand aus.",
+                    modernisierungwaende: "Gedämmte Außenwände reduzieren Wärmeverluste nachhaltig.",
+                    modernisierungbaeder: "Moderne Bäder sind ein Indikator für zeitgemäße Ausstattung.",
+                    modernisierunginnenausbau: "Erneuerter Innenausbau beeinflusst Komfort und Zustand.",
+                    modernisierunggrundriss: "Ein optimierter Grundriss kann die Funktionalität und Marktgängigkeit erhöhen."
+                };
+                return infos[id] || "";
+            }
+
+            const modernisierungen = [{
+                    id: "modernisierungdach",
+                    frage: "Modernisierung des Daches inklusive der Wärmedämmung 🏠"
+                },
+                {
+                    id: "modernisierungfenster",
+                    frage: "Modernisierung der Fenster und Außentüren 🪟"
+                },
+                {
+                    id: "modernisierungleitung",
+                    frage: "Modernisierung der Leitungssysteme (Strom, Gas, Wasser, Abwasser) 🔧"
+                },
+                {
+                    id: "modernisierungheizung",
+                    frage: "Modernisierung der Heizungsanlage 🔥"
+                },
+                {
+                    id: "modernisierungwaende",
+                    frage: "Modernisierung der Wärmedämmung der Außenwände 🧱"
+                },
+                {
+                    id: "modernisierungbaeder",
+                    frage: "Modernisierung von Bädern 🚿"
+                },
+                {
+                    id: "modernisierunginnenausbau",
+                    frage: "Innenausbau (Decken, Böden, Treppen) 🛠️"
+                },
+                {
+                    id: "modernisierunggrundriss",
+                    frage: "Verbesserung der Grundrissgestaltung 📐",
+                }
+            ];
+
+            const steps = [{
+                    id: "frage1",
+                    frage: "Kostenlose Ersteinschätzung",
+                    untertitel: "Jetzt die Nutzungsdauer von Gebäuden berechnen",
+                    type: "start",
+                    karten: [{
+                            icon: "🏠",
+                            label: "Wohngebäude",
+                            value: "Wohngebäude"
+                        },
+                        {
+                            icon: "🏢",
+                            label: "Zu unter 50 % gewerblich genutzte Immobilie",
+                            value: "Zu unter 50 % gewerblich genutzte Immobilie"
+                        },
+                        {
+                            icon: "🏭",
+                            label: "Zu über 50 % gewerblich genutzte Immobilie",
+                            value: "Zu über 50 % gewerblich genutzte Immobilie"
+                        }
+                    ],
+                    onAnswer: value => {
+                        if (value.includes("über 50")) {
+                            showMessage("Leider ist keine automatisierte Berechnung bei über 50 % gewerblich genutzten Immobilien möglich. Wir können Ihnen dennoch ein Gutachten erstellen. 😊");
+                            return false;
+                        }
+                        return true;
+                    }
+                },
+                {
+                    id: "frage2",
+                    frage: "Wann wurde die Immobilie gebaut? 🏗️",
+                    type: "text",
+                    info: "Das Baujahr wirkt sich auf die Restnutzungsdauer Ihrer Immobilie aus",
+                    validate: value => /^\d{4}$/.test(value) && parseInt(value) <= new Date().getFullYear()
+                },
+                {
+                    id: "frage3",
+                    frage: "Wie würden Sie die Ausstattung Ihrer Immobilie beschreiben? 🏠✨",
+                    info: "Die Ausstattung beeinflusst die Bewertung der Restnutzungsdauer.",
+                    type: "buttons",
+                    options: ["Stark gehoben", "Gehoben", "Mittel", "Einfach", "Schlecht"]
+                },
+                {
+                    id: "frage4",
+                    frage: "Wurde die Immobilie kernsaniert?",
+                    info: "Wenn es sich um ein Kernsaniertes Objekt handelt, ist leider keine automatisierte Ermittlung möglich, a es keine einheitliche Regelung für kernsanierte Objekte gibt. Wir können Ihnen dennoch ein Gutachten erstellen.",
+                    type: "buttons",
+                    options: ["Ja", "Nein"],
+                    onAnswer: value => {
+                        if (value === "Ja") {
+                            showMessage("Leider ist keine automatisierte Berechnung möglich, da es keine einheitliche Regelung für kernsanierte Objekte gibt. Wir können Ihnen dennoch ein Gutachten erstellen. 😊");
+                            return false;
+                        }
+                        return true;
+                    }
+                },
+                ...modernisierungen.map(m => ({
+                    id: m.id,
+                    frage: m.frage,
+                    info: getModernisierungsInfo(m.id),
+                    type: "modernisierung",
+                    ohneJahr: m.ohneJahr
+                })),
+                {
+                    id: "kontaktformular",
+                    frage: "Fast geschafft! Bitte geben Sie Ihre Kontaktdaten an:",
+                    info: "Ihre Angaben werden nur zur Erstellung des Gutachtens verwendet.",
+                    type: "form"
+                }
+            ];
+
+            let currentStep = 0;
+            const answers = {};
+
+            function updateProgress(stepIndex) {
+                const totalSteps = steps.length;
+                const percent = Math.round((stepIndex / totalSteps) * 100);
+                progressBar.style.width = percent + "%";
+            }
+
+            function showMessage(msg) {
+                funnelContainer.innerHTML = `
+        <div style="text-align: center;">
+            <p>${msg}</p>
+            <button class="button" onclick="restartFunnel()" style="margin-top: 20px;">Zurück zum Start</button>
+        </div>
+    `;
+                progressBar.style.width = "100%";
+                backButton.style.visibility = "hidden";
+                skipButton.style.visibility = "hidden";
+            }
+
+            function renderStep(stepIndex) {
+                // Buttons standardmäßig wieder einblenden
+                skipButton.style.display = "inline-block";
+                backButton.style.display = "inline-block";
+
+                funnelContainer.innerHTML = "";
+                if (stepIndex >= steps.length) {
+                    funnelContainer.innerHTML = `<p>Vielen Dank! Ihre Daten wurden erfolgreich übermittelt.</p>`;
+                    backButton.style.visibility = "hidden";
+                    skipButton.style.visibility = "hidden";
+                    updateProgress(stepIndex);
+                    return;
+                }
+
+                const step = steps[stepIndex];
+                const wrapper = document.createElement("div");
+                wrapper.className = "funnel-step active";
+
+                const frage = document.createElement("h3");
+                frage.innerHTML = step.frage;
+
+                // Tooltip (falls vorhanden)
+                if (step.info) {
+                    const info = document.createElement("span");
+                    info.className = "tooltip";
+                    info.innerHTML = "&#9432;";
+                    const tooltip = document.createElement("div");
+                    tooltip.className = "tooltip-text";
+                    tooltip.textContent = step.info;
+                    info.appendChild(tooltip);
+                    frage.appendChild(info);
+                }
+                wrapper.appendChild(frage);
+
+                const selected = answers[step.id] || null;
+                if (step.type === "start") {
+                    const title = document.createElement("h2");
+                    title.textContent = step.frage;
+                    title.style.textAlign = "center";
+                    title.style.color = "#007BFF";
+
+                    const subtitle = document.createElement("p");
+                    subtitle.textContent = step.untertitel;
+                    subtitle.style.textAlign = "center";
+                    subtitle.style.marginTop = "-10px";
+
+                    const grid = document.createElement("div");
+                    grid.style.display = "grid";
+                    grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
+                    grid.style.gap = "48px";
+                    grid.style.margin = "40px 0";
+
+                    step.karten.forEach(k => {
+                        const card = document.createElement("div");
+                        card.className = "option-button";
+                        card.style.textAlign = "center";
+                        card.style.padding = "24px";
+                        card.style.width = "150px"
+                        card.innerHTML = `
+            <div style="font-size: 36px; margin-bottom: 12px;">${k.icon}</div>
+            <div>${k.label}</div>
+        `;
+                        card.onclick = () => {
+                            answers[step.id] = k.value;
+                            if (step.onAnswer && !step.onAnswer(k.value)) return;
+                            renderStep(++currentStep);
+                        };
+                        grid.appendChild(card);
+                    });
+
+                    // Vorteile als horizontale Zeile
+                    const benefitRow = document.createElement("div");
+                    benefitRow.style.display = "flex";
+                    benefitRow.style.justifyContent = "center";
+                    benefitRow.style.gap = "30px";
+                    benefitRow.style.flexWrap = "wrap";
+                    benefitRow.style.marginTop = "30px";
+                    benefitRow.style.fontSize = "15px";
+
+                    const benefits = [
+                        "✅ Kostenlose Ersteinschätzung",
+                        "⚡ Schnell und unverbindlich",
+                        "🔒 Keine Registrierung notwendig"
+                    ];
+                    benefits.forEach(text => {
+                        const p = document.createElement("p");
+                        p.textContent = text;
+                        p.style.margin = "0";
+                        benefitRow.appendChild(p);
+                    });
+
+                    // Logo ganz unten
+                    const logoWrapper = document.createElement("div");
+                    logoWrapper.style.marginTop = "30px";
+                    logoWrapper.style.textAlign = "center";
+
+                    const logo = document.createElement("img");
+                    logo.src = "https://d3v0px0pttie1i.cloudfront.net/uploads/branding/logo/4227c3ce-7f4d-4dce-b8cf-991fd511683e/91a11f1e.png"; // <-- Logo-Link hier einsetzen
+                    logo.alt = "Firmenlogo";
+                    logo.style.width = "180px";
+                    logoWrapper.appendChild(logo);
+
+                    // Alles zusammensetzen
+                    wrapper.innerHTML = "";
+                    wrapper.appendChild(title);
+                    wrapper.appendChild(subtitle);
+                    wrapper.appendChild(grid);
+                    wrapper.appendChild(benefitRow);
+                    wrapper.appendChild(logoWrapper);
+
+                    funnelContainer.appendChild(wrapper);
+                    skipButton.style.display = "none";
+                    backButton.style.display = "none";
+                    updateProgress(stepIndex);
+                    return;
+                }
+                // === Auswahlfelder (Buttons) ===
+                if (step.type === "buttons") {
+                    step.options.forEach(option => {
+                        const btn = document.createElement("div");
+                        btn.className = "option-button";
+                        btn.textContent = option;
+                        if (selected === option) btn.classList.add("selected");
+                        btn.onclick = () => {
+                            answers[step.id] = option;
+                            renderStep(stepIndex);
+                        };
+                        wrapper.appendChild(btn);
+                    });
+
+                    skipButton.textContent = "Weiter";
+                    skipButton.onclick = () => {
+                        if (!answers[step.id]) {
+                            alert("Bitte treffen Sie eine Auswahl, bevor Sie fortfahren.");
+                            return;
+                        }
+                        if (step.onAnswer && !step.onAnswer(answers[step.id])) return;
+                        renderStep(++currentStep);
+                    };
+                }
+
+                // === Texteingabe ===
+                else if (step.type === "text") {
+                    wrapper.appendChild(frage);
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.value = answers[step.id] || "";
+                    wrapper.appendChild(input);
+
+
+                    const validateAndContinue = () => {
+                        const value = input.value.trim();
+                        const year = parseInt(value);
+                        const currentYear = new Date().getFullYear();
+                        if (!/^\d{4}$/.test(value) || year < 1800 || year > currentYear) {
+                            alert(`Bitte geben Sie ein gültiges Jahr zwischen 1800 und ${currentYear} ein.`);
+                            return;
+                        }
+                        answers[step.id] = value;
+                        renderStep(++currentStep);
+                    };
+
+                    skipButton.textContent = "Weiter";
+                    skipButton.onclick = validateAndContinue;
+                    input.addEventListener("keydown", e => {
+                        if (e.key === "Enter") validateAndContinue();
+                    });
+                }
+
+                // === Modernisierungsfragen mit Zwischenabfrage ===
+                else if (step.type === "modernisierung") {
+                    const zeitwert = answers[`zeitpunkt${step.id}`];
+
+                    ["Keine 🚫", "Teilweise 🔧", "Komplett ✅"].forEach(opt => {
+                        const btn = document.createElement("div");
+                        btn.className = "option-button";
+                        btn.textContent = opt;
+                        if (selected === opt) btn.classList.add("selected");
+                        btn.onclick = () => {
+                            answers[step.id] = opt;
+                            if (opt === "Keine 🚫") delete answers[`zeitpunkt${step.id}`];
+                            renderStep(stepIndex);
+                        };
+                        wrapper.appendChild(btn);
+                    });
+
+                    if (selected && selected !== "Keine 🚫" && !step.ohneJahr) {
+                        const nested = document.createElement("div");
+                        nested.className = "nested-options active";
+                        nested.innerHTML = "<p>Wie lange liegt diese Modernisierung zurück? ⏳</p>";
+
+                        zwischenfragen.forEach(z => {
+                            const zBtn = document.createElement("div");
+                            zBtn.className = "option-button";
+                            zBtn.textContent = z;
+                            if (zeitwert === z) zBtn.classList.add("selected");
+                            zBtn.onclick = () => {
+                                answers[`zeitpunkt${step.id}`] = z;
+                                renderStep(stepIndex);
+                            };
+                            nested.appendChild(zBtn);
+                        });
+
+                        wrapper.appendChild(nested);
+                    }
+
+                    skipButton.textContent = "Weiter";
+                    skipButton.onclick = () => {
+                        if (!answers[step.id]) {
+                            alert("Bitte treffen Sie eine Auswahl.");
+                            return;
+                        }
+                        if (selected !== "Keine 🚫" && !step.ohneJahr && !answers[`zeitpunkt${step.id}`]) {
+                            alert("Bitte geben Sie auch den Zeitraum der Modernisierung an.");
+                            return;
+                        }
+                        renderStep(++currentStep);
+                    };
+                }
+
+                // === Formular-Feld ===
+                else if (step.type === "form") {
+                    const fields = [{
+                            id: "vorname",
+                            label: "Vorname"
+                        },
+                        {
+                            id: "nachname",
+                            label: "Nachname"
+                        },
+                        {
+                            id: "telefon",
+                            label: "Telefonnummer"
+                        },
+                        {
+                            id: "email",
+                            label: "E-Mail-Adresse",
+                            type: "email"
+                        }
+                    ];
+
+                    fields.forEach(f => {
+                        const group = document.createElement("div");
+                        group.className = "form-group";
+
+                        const label = document.createElement("label");
+                        label.textContent = f.label;
+
+                        const input = document.createElement("input");
+                        input.type = f.type || "text";
+                        input.id = f.id;
+                        input.value = answers[f.id] || "";
+
+                        group.appendChild(label);
+                        group.appendChild(input);
+                        wrapper.appendChild(group);
+                    });
+
+                    skipButton.textContent = "Absenden";
+                    skipButton.onclick = () => {
+                        fields.forEach(f => {
+                            answers[f.id] = document.getElementById(f.id).value.trim();
+                        });
+                        berechneRestnutzungsdauer();
+                    };
+                }
+
+                funnelContainer.appendChild(wrapper);
+                updateProgress(stepIndex);
+
+                backButton.style.visibility = currentStep > 0 ? "visible" : "hidden";
+                backButton.onclick = () => {
+                    currentStep = Math.max(0, currentStep - 1);
+                    renderStep(currentStep);
+                };
+            }
+
+            function restartFunnel() {
+                currentStep = 0;
+                Object.keys(answers).forEach(key => delete answers[key]); // Antworten zurücksetzen
+
+                // Buttons zurücksetzen
+                skipButton.style.display = "inline-block";
+                skipButton.style.textContent = "Weiter";
+                skipButton.style.visibility = "visible";
+
+                backButton.style.display = "inline-block";
+                backButton.style.visibility = "hidden";
+
+                renderStep(currentStep);
+            }
+
+            window.restartFunnel = restartFunnel;
+
+            // Funnel initial starten
+            renderStep(currentStep);
+
+            // 👇 Restnutzungsdauer-Berechnung nach Absendung
+            function berechneRestnutzungsdauer() {
+                const punkteTabelle = {
+                    modernisierungdach: [4, 3, 2, 1, 0],
+                    modernisierungfenster: [2, 2, 1, 0, 0],
+                    modernisierungleitung: [2, 2, 2, 1, 0],
+                    modernisierungheizung: [2, 2, 1, 0, 0],
+                    modernisierungwaende: [4, 3, 2, 1, 0],
+                    modernisierungbaeder: [2, 1, 0, 0, 0],
+                    modernisierunginnenausbau: [2, 2, 2, 1, 0]
+                };
+
+                const zeitpunktMapping = {
+                    "Bis ca 5 Jahre": 0,
+                    "Bis ca 10 Jahre": 1,
+                    "Bis ca 15 Jahre": 2,
+                    "Bis ca 20 Jahre": 3,
+                    "Noch länger": 4
+                };
+
+                const variablen = [
+                    "modernisierungdach",
+                    "modernisierungfenster",
+                    "modernisierungleitung",
+                    "modernisierungheizung",
+                    "modernisierungwaende",
+                    "modernisierungbaeder",
+                    "modernisierunginnenausbau"
+                ];
+
+                let scoring = 0;
+
+                variablen.forEach(key => {
+                    const status = answers[key];
+                    const zeitwert = answers["zeitpunkt" + key];
+                    if (status && zeitwert) {
+                        const index = zeitpunktMapping[zeitwert] ?? 4;
+                        const punkte = punkteTabelle[key][index];
+                        if (status === "Komplett ✅") scoring += punkte;
+                        else if (status === "Teilweise 🔧") scoring += punkte / 2;
+                    }
+                });
+
+                if (answers.modernisierunggrundriss === "Komplett ✅") scoring += 2;
+                else if (answers.modernisierunggrundriss === "Teilweise 🔧") scoring += 1;
+
+                const abcTabelle = {
+                    0: {
+                        a: 1.2500,
+                        b: 2.6250,
+                        c: 1.5250,
+                        ab: 60
+                    },
+                    1: {
+                        a: 1.2500,
+                        b: 2.6250,
+                        c: 1.5250,
+                        ab: 60
+                    },
+                    2: {
+                        a: 1.0767,
+                        b: 2.2757,
+                        c: 1.3878,
+                        ab: 55
+                    },
+                    3: {
+                        a: 0.9033,
+                        b: 1.9263,
+                        c: 1.2505,
+                        ab: 55
+                    },
+                    4: {
+                        a: 0.7300,
+                        b: 1.5770,
+                        c: 1.1133,
+                        ab: 40
+                    },
+                    5: {
+                        a: 0.6725,
+                        b: 1.4578,
+                        c: 1.0850,
+                        ab: 35
+                    },
+                    6: {
+                        a: 0.6150,
+                        b: 1.3385,
+                        c: 1.0567,
+                        ab: 30
+                    },
+                    7: {
+                        a: 0.5575,
+                        b: 1.2193,
+                        c: 1.0283,
+                        ab: 25
+                    },
+                    8: {
+                        a: 0.5000,
+                        b: 1.1000,
+                        c: 1.0000,
+                        ab: 20
+                    },
+                    9: {
+                        a: 0.4660,
+                        b: 1.0270,
+                        c: 0.9906,
+                        ab: 19
+                    },
+                    10: {
+                        a: 0.4320,
+                        b: 0.9540,
+                        c: 0.9811,
+                        ab: 18
+                    },
+                    11: {
+                        a: 0.3980,
+                        b: 0.8810,
+                        c: 0.9717,
+                        ab: 17
+                    },
+                    12: {
+                        a: 0.3640,
+                        b: 0.8080,
+                        c: 0.9622,
+                        ab: 16
+                    },
+                    13: {
+                        a: 0.3300,
+                        b: 0.7350,
+                        c: 0.9528,
+                        ab: 15
+                    },
+                    14: {
+                        a: 0.3040,
+                        b: 0.6760,
+                        c: 0.9506,
+                        ab: 14
+                    },
+                    15: {
+                        a: 0.2780,
+                        b: 0.6170,
+                        c: 0.9485,
+                        ab: 13
+                    },
+                    16: {
+                        a: 0.2520,
+                        b: 0.5580,
+                        c: 0.9463,
+                        ab: 12
+                    },
+                    17: {
+                        a: 0.2260,
+                        b: 0.4990,
+                        c: 0.9442,
+                        ab: 11
+                    },
+                    18: {
+                        a: 0.2000,
+                        b: 0.4400,
+                        c: 0.9420,
+                        ab: 10
+                    },
+                    19: {
+                        a: 0.2000,
+                        b: 0.4400,
+                        c: 0.9420,
+                        ab: 10
+                    },
+                    20: {
+                        a: 0.2000,
+                        b: 0.4400,
+                        c: 0.9420,
+                        ab: 10
+                    }
+                };
+
+                const scoringRounded = Math.min(Math.round(scoring), 20);
+                const {
+                    a,
+                    b,
+                    c,
+                    ab: abRelativ
+                } = abcTabelle[scoringRounded];
+
+                const baujahr = parseInt(answers.frage2);
+                const abschreibungsdauer = baujahr < 1918 ? 40 : 50;
+                const aktuellesJahr = new Date().getFullYear();
+                const alter = aktuellesJahr - baujahr;
+
+
+                const gnd = 80; // Setze Standard-Gesamtnutzungsdauer oder rechne später individuell
+                const relativesAlter = (alter / gnd) * 100;
+                let rnd;
+
+                if (relativesAlter < abRelativ) {
+                    rnd = gnd - alter;
+                } else {
+                    rnd = (a * ((alter ** 2) / gnd)) - (b * alter) + (c * gnd);
+                }
+
+                const restnutzungsdauer = Math.max(0, Math.ceil(rnd));
+
+                const steuervorteilMoeglich = restnutzungsdauer < abschreibungsdauer;
+
+                const ergebnisDaten = {
+                    vorname: answers.vorname,
+                    nachname: answers.nachname,
+                    email: answers.email,
+                    telefon: answers.telefon,
+                    baujahr: answers.frage2,
+                    abschreibung: abschreibungsdauer,
+                    scoring: scoringRounded,
+                    restnutzungsdauer: restnutzungsdauer,
+                    steuerVorteilMoeglich: restnutzungsdauer < abschreibungsdauer
+                };
+
+                fetch("https://hooks.zapier.com/hooks/catch/21938164/2xz2o65/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(ergebnisDaten)
+                });
+
+                // Ergebnis anzeigen
+                funnelContainer.innerHTML = `
+  <div style="text-align: center;">
+    <h2>Vielen Dank für Ihre Angaben!</h2>
+    <p>Die Auswertung der Restnutzungsdauer Ihres Objekts wird nun erstellt und per E-Mail an Sie versendet.</p>
+    <button class="button" onclick="restartFunnel()">Zurück zum Start</button>
+  </div>
+`;
+                progressBar.style.width = "100%";
+                skipButton.style.display = "none";
+                backButton.style.display = "none";
+            }
+
+        };
+    </script>
+</body>
+
+</html>
