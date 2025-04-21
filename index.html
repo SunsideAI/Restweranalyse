@@ -828,35 +828,23 @@
 
                 const steuervorteilMoeglich = restnutzungsdauer < abschreibungsdauer;
 
-                const ergebnisDaten = {
-                    vorname: "Paul",
-                    nachname: answers.nachname,
-                    email: answers.email,
-                    telefon: answers.telefon,
-                    restnutzungsdauer: restnutzungsdauer,
-                    abschreibung: abschreibungsdauer,
-                    steuerVorteilMoeglich: restnutzungsdauer < abschreibungsdauer
+                const testdaten = {
+                    vorname: "Max",
+                    nachname: "Mustermann",
+                    email: "max@test.de",
+                    telefon: "0123456789",
+                    restnutzungsdauer: 27,
+                    abschreibung: 50,
+                    steuerVorteilMoeglich: true
                 };
 
                 fetch("https://hooks.zapier.com/hooks/catch/21938164/2xz2o65/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(ergebnisDaten)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Fehler beim Senden an Zapier");
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        console.log("✅ Erfolgreich an Zapier gesendet:", data);
-                    })
-                    .catch(error => {
-                        console.error("❌ Fehler beim Senden an Zapier:", error);
-                    });
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(testdaten)
+                });
 
                 // Ergebnis anzeigen
                 funnelContainer.innerHTML = `
