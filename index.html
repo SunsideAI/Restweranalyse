@@ -15,7 +15,7 @@
             margin: 0;
             padding: 20px;
             /* vorher 40px */
-            background: #ffffff;
+            background: #fffff;
             display: flex;
             justify-content: center;
         }
@@ -892,25 +892,6 @@
 
         };
     </script>
-    <script>
-        window.addEventListener('load', function() {
-            const height = document.body.scrollHeight;
-            parent.postMessage({
-                type: 'setHeight',
-                height: height
-            }, '*');
-        });
-
-        // Bei Resize ebenfalls posten
-        window.addEventListener('resize', function() {
-            const height = document.body.scrollHeight;
-            parent.postMessage({
-                type: 'setHeight',
-                height: height
-            }, '*');
-        });
-    </script>
-
 </body>
 
 </html>
