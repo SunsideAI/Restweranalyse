@@ -299,7 +299,7 @@
                     }
                 },
                 {
-                    id: "Baujahr",
+                    id: "baujahr",
                     frage: "Wann wurde die Immobilie gebaut? 🏗️",
                     type: "text",
                     info: "Das Baujahr wirkt sich auf die Restnutzungsdauer Ihrer Immobilie aus",
@@ -839,7 +839,7 @@
                     ab: abRelativ
                 } = abcTabelle[scoringRounded];
 
-                const baujahr = parseInt(answers.Baujahr);
+                const baujahr = parseInt(answers.baujahr);
                 const abschreibungsdauer = baujahr < 1918 ? 40 : 50;
                 const aktuellesJahr = new Date().getFullYear();
                 const alter = aktuellesJahr - baujahr;
