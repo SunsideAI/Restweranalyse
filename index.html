@@ -839,7 +839,7 @@
                     ab: abRelativ
                 } = abcTabelle[scoringRounded];
 
-                const baujahr = parseInt(answers.frage2);
+                const baujahr = parseInt(answers.Baujahr);
                 const abschreibungsdauer = baujahr < 1918 ? 40 : 50;
                 const aktuellesJahr = new Date().getFullYear();
                 const alter = aktuellesJahr - baujahr;
