@@ -62,6 +62,12 @@
         .button {
             padding: 10px 20px;
             background: #5E2C8C;
+            font-family: 'Epilogue', sans-serif;
+            /* explizit festlegen */
+            font-size: 16px;
+            /* oder was du willst */
+            font-weight: 500;
+            /* optional für mehr Konsistenz */
             color: white;
             border: none;
             cursor: pointer;
@@ -302,7 +308,7 @@
                     id: "baujahr",
                     frage: "Wann wurde die Immobilie gebaut? 🏗️",
                     type: "text",
-                    info: "Das Baujahr wirkt sich auf die Restnutzungsdauer Ihrer Immobilie aus",
+                    info: "Aus dem Baujahr berechnen wir das Alter der Immobilie, das ein zentraler Faktor für die Restnutzungsdauer ist. Je nachdem, wie alt Ihre Immobilie ist, kann sich die Restnutzungsdauer deutlich verkürzen – besonders bei älteren Baujahren.",
                     validate: value => /^\d{4}$/.test(value) && parseInt(value) <= new Date().getFullYear()
                 },
                 {
