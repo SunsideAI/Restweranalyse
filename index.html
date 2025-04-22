@@ -858,12 +858,13 @@
                 const restnutzungsdauer = Math.max(0, Math.ceil(rnd));
 
                 const steuervorteilMoeglich = restnutzungsdauer < abschreibungsdauer;
+                const steuervorteilText = steuervorteilMoeglich ? "Steuervorteile sind möglich ✅" : "Stuervorteile müssen durch den Sachverständigen geprüft werden ⚠️";
 
                 const ergebnisDaten = {
                     ...answers, // alle User-Antworten
                     restnutzungsdauer,
                     abschreibung: abschreibungsdauer,
-                    steuerVorteilMoeglich: restnutzungsdauer < abschreibungsdauer
+                    steuerVorteilMoeglich: steuervorteilText
                 };
 
                 fetch("/.netlify/functions/zapierProxy", {
