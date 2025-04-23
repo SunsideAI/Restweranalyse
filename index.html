@@ -858,6 +858,16 @@
                     modernisierungsBewertung = "Nicht modernisiert";
                 }
 
+                let modernisierungsAmpelklasse = "";
+
+                if (modernisierungsBewertung === "Gut modernisiert") {
+                    modernisierungsAmpelklasse = "gruen";
+                } else if (modernisierungsBewertung === "Teilweise modernisiert") {
+                    modernisierungsAmpelklasse = "gelb";
+                } else {
+                    modernisierungsAmpelklasse = "rot";
+                }
+
                 const baujahr = parseInt(answers.baujahr);
                 const abschreibungsdauer = baujahr < 1918 ? 40 : 50;
                 const aktuellesJahr = new Date().getFullYear();
@@ -886,7 +896,8 @@
                     steuerVorteilMoeglich: steuervorteilMoeglich,
                     steuerVorteilText: steuervorteilText,
                     modernisierungScore: scoringRounded,
-                    Modernisierungs_Bewertung: modernisierungsBewertung
+                    Modernisierungs_Bewertung: modernisierungsBewertung,
+                    Modernisierungs_Ampelklasse: modernisierungsAmpelklasse
                 };
 
                 fetch("/.netlify/functions/zapierProxy", {
