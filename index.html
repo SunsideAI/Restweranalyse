@@ -873,7 +873,6 @@
                 const aktuellesJahr = new Date().getFullYear();
                 const alter = aktuellesJahr - baujahr;
 
-
                 const gnd = 80; // Setze Standard-Gesamtnutzungsdauer oder rechne später individuell
                 const relativesAlter = (alter / gnd) * 100;
                 let rnd;
@@ -889,6 +888,18 @@
                 const steuervorteilMoeglich = restnutzungsdauer < abschreibungsdauer;
                 const steuervorteilText = steuervorteilMoeglich ? "Steuervorteile sind möglich ✅" : "Stuervorteile müssen durch den Sachverständigen geprüft werden ⚠️";
 
+                let ergebnisText = "";
+                let empfehlungText = "";
+
+                if (steuerVorteilMoeglich) {
+                    ergebnisText = "Die Restnutzungsdauer liegt unter der gesetzlich vorgesehenen Abschreibungsdauer – es könnten steuerliche Vorteile bestehen.";
+                    empfehlungText = "👉 Wir unterstützen Sie gern mit einem offiziellen Sachverständigengutachten zur Vorlage beim Finanzamt. Dieses Gutachten bestätigt die verkürzte Nutzungsdauer und dient als Nachweis zur Anpassung Ihrer Abschreibung.";
+                } else {
+                    ergebnisText = "Die Immobilie wurde umfassend modernisiert und weist eine lange Restnutzungsdauer auf – steuerliche Vorteile sind eher unwahrscheinlich, können aber individuell durch einen Sachverständigen geprüft werden.";
+                    empfehlungText = "👉 Gern analysieren wir Ihre Immobilie im Detail und geben Ihnen eine fundierte Rückmeldung, ob sich ein Gutachten für das Finanzamt lohnt.";
+                }
+
+
                 const ergebnisDaten = {
                     ...answers, // alle User-Antworten
                     restnutzungsdauer,
@@ -897,7 +908,9 @@
                     steuerVorteilText: steuervorteilText,
                     modernisierungScore: scoringRounded,
                     Modernisierungs_Bewertung: modernisierungsBewertung,
-                    Modernisierungs_Ampelklasse: modernisierungsAmpelklasse
+                    Modernisierungs_Ampelklasse: modernisierungsAmpelklasse,
+                    Ergebnis_Text: ergebnisText,
+                    Empfehlung_Text: empfehlungText
                 };
 
                 fetch("/.netlify/functions/zapierProxy", {
