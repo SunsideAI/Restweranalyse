@@ -848,6 +848,16 @@
                     ab: abRelativ
                 } = abcTabelle[scoringRounded];
 
+                let modernisierungsBewertung = "";
+
+                if (scoringRounded >= 14) {
+                    modernisierungsBewertung = "Gut modernisiert";
+                } else if (scoringRounded >= 8) {
+                    modernisierungsBewertung = "Teilweise modernisiert";
+                } else {
+                    modernisierungsBewertung = "Nicht modernisiert";
+                }
+
                 const baujahr = parseInt(answers.baujahr);
                 const abschreibungsdauer = baujahr < 1918 ? 40 : 50;
                 const aktuellesJahr = new Date().getFullYear();
@@ -875,7 +885,8 @@
                     abschreibung: abschreibungsdauer,
                     steuerVorteilMoeglich: steuervorteilMoeglich,
                     steuerVorteilText: steuervorteilText,
-                    modernisierungScore: scoringRounded
+                    modernisierungScore: scoringRounded,
+                    Modernisierungs_Bewertung: modernisierungsBewertung
                 };
 
                 fetch("/.netlify/functions/zapierProxy", {
